@@ -33,30 +33,21 @@ namespace WNPA02_Client
             
             
         }
-        public static async Task ConnectToServer(TcpClient client)
+        public static async Task ConnectToServer(TcpClient client, string addressToParse, string portToParse)
         {
-            //Need a way to talk to the server before we can get Windows to tell us the true IP and Port.
-            //However, everyones machine will be different if they are connecting to my server. 
-            //We know where the server lives, that wont change.
-            //Using localhost as the placeholder as it works on everyones machine.
-            IPAddress placeholder = IPAddress.Parse("127.0.0.1");
+            //The server will display the ip and port it lives on to the user. Collect it from the passed in values.
+            IPAddress placeholder = IPAddress.Parse(addressToParse);
+            int port = int.Parse(portToParse);
             
             //Try to connect the server and determine the IP and Port Windows sets for the client
             try
             {
                 
-                await client.ConnectAsync(placeholder, 6000);
+                //Wait to establish a connection
+                await client.ConnectAsync(placeholder, port);
 
-                //Break down the information we get from Windows.
-                IPEndPoint windowsAssigned = (IPEndPoint)client.Client.LocalEndPoint;
-
-                //Append the results for visibility
-                string message = $"Your IP Address is {windowsAssigned.Address}:{windowsAssigned.Port}";
-
-                //Maybe have some method that displays it on the client? Not there yet.
-
-                //Log the message
-                //Logger.Log(message);
+                //Send a message to the server with some sort of command to initate starting a game and the client id
+  
             }
 
             catch (Exception ex)
