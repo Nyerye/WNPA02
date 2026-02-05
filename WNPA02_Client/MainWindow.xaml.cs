@@ -28,12 +28,13 @@ namespace WNPA02_Client
             //Fetch the player an empty socket that has an IPv4 address
             TcpClient client = new TcpClient(AddressFamily.InterNetwork);
 
-            //Return it back. We will manipulate the data more in another method.
+            //Return it back. We will use it to connect to the server.
             return client;
             
             
         }
-        public static async Task ConnectToServer(TcpClient client, string addressToParse, string portToParse)
+
+        public static async Task ConnectToServer(TcpClient client,string addressToParse, string portToParse)
         {
             //The server will display the ip and port it lives on to the user. Collect it from the passed in values.
             IPAddress placeholder = IPAddress.Parse(addressToParse);
