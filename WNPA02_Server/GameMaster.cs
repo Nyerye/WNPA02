@@ -62,11 +62,11 @@ namespace WNPA02_Server
         {
             try
             {
-                using(client)
+                using (client)
                 using (NetworkStream stream = client.GetStream())
                 {
                     //Receive the incoming message packet from the client
-                    GameData incoming = (GameData)stream;
+                    GameData incoming = GameLogic.ReceiveGameData(stream);
 
                     //Initlaize the outgoing response back to the client
                     GameData outgoing;
@@ -87,8 +87,25 @@ namespace WNPA02_Server
                             break;
                         case "RESUME":
                             outgoing = GameLogic.LoadGameData(incoming.SessionID);
+                            outgoing.message = "Game Resumed!";
+                            break;
                         case "END":
                             outgoing = GameLogic.EndGame(incoming);
+                            GameLogic.SaveGameData(outgoing);
+                            break;
+                        case "TIMEOUT":
+                            outgoing = GameLogic.LoadGameData(incoming.SessionID);
+                            if (GameTimer.IsGameOver(outgoing.startTime))
+                            {
+                                outgoing = GameLogic.EndGame(outgoing);
+                                GameLogic.SaveGameData(outgoing);
+                                outgoing.message = "Game Over! Time's up!";
+                            }
+                            else
+                            {
+                                int timeRemaining = GameTimer.GetTimeRemainingSeconds(outgoing.startTime);
+                                outgoing.message = $"Time remaining: {timeRemaining} seconds";
+                            }
                             break;
                         default:
                             UI.Log($"Unknown command received from client: {incoming.command}");
@@ -102,32 +119,33 @@ namespace WNPA02_Server
 
             }
 
+        }
+
+        public static class GameTimer
+        {
+            private static readonly TimeSpan GameDuration = TimeSpan.FromMinutes(10);
+
+            public static DateTime StartGame()
+            {
+                return DateTime.UtcNow;
+            }
+
+            public static int GetTimeRemainingSeconds(DateTime gameStartTime)
+            {
+                TimeSpan elapsed = DateTime.UtcNow - gameStartTime;
+                TimeSpan remaining = GameDuration - elapsed;
+
+                if (remaining <= TimeSpan.Zero)
+                    return 0;
+
+                return (int)remaining.TotalSeconds;
+            }
+
+            public static bool IsGameOver(DateTime gameStartTime)
+            {
+                return DateTime.UtcNow - gameStartTime >= GameDuration;
+            }
+        }
+
     }
-
-    public static class GameTimer
-    {
-        private static readonly TimeSpan GameDuration = TimeSpan.FromMinutes(10);
-
-        public static DateTime StartGame()
-        {
-            return DateTime.UtcNow;
-        }
-
-        public static int GetTimeRemainingSeconds(DateTime gameStartTime)
-        {
-            TimeSpan elapsed = DateTime.UtcNow - gameStartTime;
-            TimeSpan remaining = GameDuration - elapsed;
-
-            if (remaining <= TimeSpan.Zero)
-                return 0;
-
-            return (int)remaining.TotalSeconds;
-        }
-
-        public static bool IsGameOver(DateTime gameStartTime)
-        {
-            return DateTime.UtcNow - gameStartTime >= GameDuration;
-        }
-    }
-
 }
