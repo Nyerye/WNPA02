@@ -1,33 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
-using static WNPA02_SharedClassLibrary.GameSession;
 
 namespace WNPA02_SharedClassLibrary
 {
-    public class GameSession
+    public struct GameData
     {
-        public struct GameData
-        {
-            Guid SessionID;
-            bool GuessCorrect;
-            int timeLeft;
-            int wordsLeft;
-            int gameVersion;
-            bool isGameOver;
-            string wordGuessed;
+        public Guid SessionID;
+        public string command;
+        public bool GuessCorrect;
+        public int timeLeft;
+        public int wordsLeft;
+        public int gameVersion;
+        public bool isGameOver;
+        public string wordGuessed;
+        public string message;
 
 
-        }
     }
-}
 
-namespace WNPA02_SharedClassLibrary
-{
-    public class GameLogic
+    public static class GameLogic
     {
 
         public static GameData InitializeGame(GameData gameData)
@@ -60,8 +56,16 @@ namespace WNPA02_SharedClassLibrary
             //Method that will be used to send the data to the server to process.
         }
 
-    }
-}
+        public static GameData LoadGameData(Guid sessionID)
+        {
+            //Method that will be used to load the game data for a session when a user reconnects.
 
-    
+        }
+
+        public static GameData ReceiveGameData(NetworkStream stream)
+        {
+            //Method that will be used to receive the game data from the client.
+        }
+
+    }
 

@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using WNPA02_SharedClassLibrary;
 
 
 
@@ -47,25 +48,86 @@ namespace WNPA02_Server
                 //Stop and wait for one of the clients to connect and trigger using ConnectAsync
                 TcpClient client = await listener.AcceptTcpClientAsync();
 
-                //Code that will spin up a task.
-                //Calls the HandleClient method maybe in a task
+                //Once a client connects, start a new task to handle the client connection and pass the client object to the method that will handle the client connection.
+
+                //Omg Norbert. What's this? Is that... a discard? Uh oh. I know you didnt teach me it. So why do I have it?
+                //I do not want the task return value, so this lets me ignore it without a warning. I just want to fire and forget this task, so I dont care about the return value.
+                //Sadly, I do not care about much anymore. Here's your link so we dont get hit with academic integrity since I'm the last person at this institution who gives a damn.
+                //https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/functional/discards
+                _ = Task.Run(() => HandleClient(client));
             }
         }
 
         internal static void HandleClient(TcpClient client)
         {
-            //Figure out where am I being tried to reached from.
-            IPEndPoint remote = (IPEndPoint)client.Client.RemoteEndPoint;
+            try
+            {
+                using(client)
+                using (NetworkStream stream = client.GetStream())
+                {
+                    //Receive the incoming message packet from the client
+                    GameData incoming = (GameData)stream;
 
-            //Something with the protocol here. Build on it so its got the send and receive info. 
+                    //Initlaize the outgoing response back to the client
+                    GameData outgoing;
 
-            //Check the incoming message to see what the user wants based on the header
+                    //Determine what to do absed on the packets command value
+                    switch (incoming.command)
+                    {
+                        case "START":
+                            outgoing = GameLogic.SendToClient(incoming);
+                            //Method here to read in the data
+                            //Method here to append some metrics to the outgoing
+                            GameLogic.SaveGameData(outgoing);
+                            outgoing.message = "Game Started!";
+                            break;
+                        case "GUESS":
+                            outgoing = GameLogic.UpdateGame(incoming);
+                            GameLogic.SaveGameData(outgoing);
+                            break;
+                        case "RESUME":
+                            outgoing = GameLogic.LoadGameData(incoming.SessionID);
+                        case "END":
+                            outgoing = GameLogic.EndGame(incoming);
+                            break;
+                        default:
+                            UI.Log($"Unknown command received from client: {incoming.command}");
+                            return;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                UI.Log($"Error handling client: {ex.Message}");
 
-            //Act accordingly
-
-            //Send payload back over here or another method
-
-        }
+            }
 
     }
+
+    public static class GameTimer
+    {
+        private static readonly TimeSpan GameDuration = TimeSpan.FromMinutes(10);
+
+        public static DateTime StartGame()
+        {
+            return DateTime.UtcNow;
+        }
+
+        public static int GetTimeRemainingSeconds(DateTime gameStartTime)
+        {
+            TimeSpan elapsed = DateTime.UtcNow - gameStartTime;
+            TimeSpan remaining = GameDuration - elapsed;
+
+            if (remaining <= TimeSpan.Zero)
+                return 0;
+
+            return (int)remaining.TotalSeconds;
+        }
+
+        public static bool IsGameOver(DateTime gameStartTime)
+        {
+            return DateTime.UtcNow - gameStartTime >= GameDuration;
+        }
+    }
+
 }

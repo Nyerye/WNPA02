@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace WNPA02_SharedClassLibrary
 {
-    public class UI
+    public static class UI
     {
         public static void Print(string message)
         {
