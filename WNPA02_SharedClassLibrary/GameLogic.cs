@@ -31,7 +31,7 @@ namespace WNPA02_SharedClassLibrary
             //Method that will be used to initialize the game data for a new game session and then save the game data for the session.
         }
 
-        public static GameData UpdateGame(GameData gameData, bool guessCorrect)
+        public static GameData UpdateGame(GameData gameData)
         {
             //Method that will be used to update the game data based on the guess made by the user and then save the game data for the session.
         }
