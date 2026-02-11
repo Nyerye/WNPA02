@@ -49,10 +49,9 @@ namespace WNPA02_Server
                 TcpClient client = await listener.AcceptTcpClientAsync();
 
                 //Once a client connects, start a new task to handle the client connection and pass the client object to the method that will handle the client connection.
-
                 //Omg Norbert. What's this? Is that... a discard? Uh oh. I know you didnt teach me it. So why do I have it?
                 //I do not want the task return value, so this lets me ignore it without a warning. I just want to fire and forget this task, so I dont care about the return value.
-                //Sadly, I do not care about much anymore. Here's your link so we dont get hit with academic integrity since I'm the last person at this institution who gives a damn.
+                //Here's your link so we dont get hit with academic integrity since I'm the last person at this institution who gives a damn.
                 //https://learn.microsoft.com/en-us/dotnet/csharp/fundamentals/functional/discards
                 _ = Task.Run(() => HandleClient(client));
             }
@@ -93,20 +92,6 @@ namespace WNPA02_Server
                             outgoing = GameLogic.EndGame(incoming);
                             GameLogic.SaveGameData(outgoing);
                             break;
-                        case "TIMEOUT":
-                            outgoing = GameLogic.LoadGameData(incoming.SessionID);
-                            if (GameTimer.IsGameOver(outgoing.startTime))
-                            {
-                                outgoing = GameLogic.EndGame(outgoing);
-                                GameLogic.SaveGameData(outgoing);
-                                outgoing.message = "Game Over! Time's up!";
-                            }
-                            else
-                            {
-                                int timeRemaining = GameTimer.GetTimeRemainingSeconds(outgoing.startTime);
-                                outgoing.message = $"Time remaining: {timeRemaining} seconds";
-                            }
-                            break;
                         default:
                             UI.Log($"Unknown command received from client: {incoming.command}");
                             return;
@@ -119,32 +104,6 @@ namespace WNPA02_Server
 
             }
 
-        }
-
-        public static class GameTimer
-        {
-            private static readonly TimeSpan GameDuration = TimeSpan.FromMinutes(10);
-
-            public static DateTime StartGame()
-            {
-                return DateTime.UtcNow;
-            }
-
-            public static int GetTimeRemainingSeconds(DateTime gameStartTime)
-            {
-                TimeSpan elapsed = DateTime.UtcNow - gameStartTime;
-                TimeSpan remaining = GameDuration - elapsed;
-
-                if (remaining <= TimeSpan.Zero)
-                    return 0;
-
-                return (int)remaining.TotalSeconds;
-            }
-
-            public static bool IsGameOver(DateTime gameStartTime)
-            {
-                return DateTime.UtcNow - gameStartTime >= GameDuration;
-            }
         }
 
     }

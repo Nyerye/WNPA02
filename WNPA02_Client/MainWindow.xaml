@@ -5,8 +5,116 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:WNPA02_Client"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        Title="Word Puzzle Game" Height="550" Width="700">
 
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Menu -->
+        <Menu Grid.Row="0">
+            <MenuItem Header="_File">
+                <MenuItem Header="_New Game" Click="NewGame_Click"/>
+                <MenuItem Header="_Resume Game" Click="ResumeGame_Click"/>
+                <Separator/>
+                <MenuItem Header="E_xit" Click="Exit_Click"/>
+            </MenuItem>
+            <MenuItem Header="_About">
+                <MenuItem Header="_About" Click="About_Click"/>
+            </MenuItem>
+        </Menu>
+
+        <!-- Main Content -->
+        <Grid Grid.Row="1" Margin="15">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Puzzle String -->
+            <GroupBox Grid.Row="0" Header="Puzzle String" Margin="0,0,0,10">
+                <TextBox x:Name="PuzzleStringTextBox" 
+                         Text="" 
+                         FontSize="24" 
+                         FontWeight="Bold"
+                         IsReadOnly="True"
+                         TextAlignment="Center"
+                         Margin="5"/>
+            </GroupBox>
+
+            <!-- Game Info -->
+            <GroupBox Grid.Row="1" Header="Game Information" Margin="0,0,0,10">
+                <Grid Margin="10">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Label Grid.Row="0" Grid.Column="0" Content="Time Remaining:"/>
+                    <TextBox Grid.Row="0" Grid.Column="1" 
+                             x:Name="TimeRemainingTextBox" 
+                             Text="" 
+                             IsReadOnly="True"
+                             Margin="5"/>
+
+                    <Label Grid.Row="1" Grid.Column="0" Content="Words Found:"/>
+                    <TextBox Grid.Row="1" Grid.Column="1" 
+                             x:Name="WordsFoundTextBox" 
+                             Text="" 
+                             IsReadOnly="True"
+                             Margin="5"/>
+
+                    <Label Grid.Row="2" Grid.Column="0" Content="Session ID:"/>
+                    <TextBox Grid.Row="2" Grid.Column="1" 
+                             x:Name="SessionIDTextBox" 
+                             Text="" 
+                             IsReadOnly="True"
+                             Margin="5"/>
+                </Grid>
+            </GroupBox>
+
+            <!-- Found Words -->
+            <GroupBox Grid.Row="2" Header="Words You've Found" Margin="0,0,0,10">
+                <TextBox x:Name="FoundWordsTextBox" 
+                         Text=""
+                         TextWrapping="Wrap"
+                         IsReadOnly="True"
+                         VerticalScrollBarVisibility="Auto"
+                         Margin="5"/>
+            </GroupBox>
+
+            <!-- Input Area -->
+            <GroupBox Grid.Row="3" Header="Enter Your Guess">
+                <Grid Margin="10">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox x:Name="GuessInputTextBox" 
+                             Grid.Column="0"
+                             FontSize="14"
+                             VerticalContentAlignment="Center"
+                             Margin="0,0,10,0"
+                             KeyDown="GuessInput_KeyDown"/>
+
+                    <Button x:Name="SubmitGuessButton" 
+                            Grid.Column="1"
+                            Content="Submit Guess"
+                            Width="120"
+                            Height="30"
+                            Click="SubmitGuess_Click"/>
+                </Grid>
+            </GroupBox>
+        </Grid>
     </Grid>
 </Window>
