@@ -17,7 +17,7 @@ namespace WNPA02_Server
             "puzzle1.txt", "puzzle2.txt", "puzzle3.txt", "puzzle4.txt"
         };
 
-        public static (string puzzleString, int wordCount, HashSet<string> validWords) LoadRandomPuzzle()
+        public static Puzzle LoadRandomPuzzle()
         {
             //Pick a random index from the list.
             int randomIndex = random.Next(files.Count);
@@ -32,9 +32,10 @@ namespace WNPA02_Server
 
             //Read the file.
             string[] lines = File.ReadAllLines(filePath);
-
             string puzzleString = lines[0];
             int wordCount = int.Parse(lines[1]);
+
+            //Add it to the hashset ignoring case as it does not matter in the context of the game. Only matters if an actual word match is made.
             HashSet<string> validWords = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
             //Add all words starting from line 3.
@@ -46,7 +47,7 @@ namespace WNPA02_Server
             //Write to the log it was successful.
             UI.Log($"Loaded puzzle: {puzzleString} with {wordCount} words from {selectedFileName}");
 
-            return (puzzleString, wordCount, validWords);
+            return new Puzzle(puzzleString, wordCount, validWords);
         }
 
     }

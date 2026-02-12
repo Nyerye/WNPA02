@@ -41,6 +41,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Puzzle.cs" />
     <Compile Include="UI.cs" />
     <Compile Include="GameLogic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

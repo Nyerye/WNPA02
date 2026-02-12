@@ -74,11 +74,13 @@ namespace WNPA02_Server
                     switch (incoming.command)
                     {
                         case "START":
-                            outgoing = GameLogic.SendToClient(incoming);
-                            //Method here to read in the data
-                            //Method here to append some metrics to the outgoing
+                            outgoing = incoming;
+                            outgoing.puzzle = FileIO.LoadRandomPuzzle();
+                            outgoing.SessionID = Guid.NewGuid();
+                            outgoing.isGameOver = false;
+                            outgoing.message = $"Game started. String is {outgoing.puzzle.PuzzleString}";
                             GameLogic.SaveGameData(outgoing);
-                            outgoing.message = "Game Started!";
+                            //Send back to client
                             break;
                         case "GUESS":
                             outgoing = GameLogic.UpdateGame(incoming);
