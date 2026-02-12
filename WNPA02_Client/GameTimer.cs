@@ -41,7 +41,7 @@ namespace WNPA02_SharedClassLibrary
         /// <summary>
         /// Starts a stopwatch when called on. 
         /// </summary>
-        private static void StartStopWatch()
+        public static void StartStopWatch()
         {
             //Start the stopwatch.
             clientWatch = Stopwatch.StartNew();

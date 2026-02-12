@@ -18,6 +18,7 @@
 /// (Sixth, Ser. Deitel Development Series). Pearson Education.
 /// </references>
 /// 
+using System.Configuration;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -30,6 +31,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WNPA02_SharedClassLibrary;
 
 namespace WNPA02_Client
 {
@@ -43,21 +45,7 @@ namespace WNPA02_Client
             InitializeComponent();
         }
 
-        /// <summary>
-        /// Method that will fetch a socket for the client to use to connect to the server
-        /// </summary>
-        /// <returns></returns>
-        //public static TcpClient FetchSocket()
-        {
-            //Fetch the player an empty socket that has an IPv4 address
-            
-            //Use the App.config file now that Norbert mentioned we can specify the client ip and port from the file.
-
-            //Return it back. We will use it to connect to the server.
-            //return client;
-
-
-        }
+        
 
         /// <summary>
         /// Method that will allows the client to connect to the server. 
@@ -68,21 +56,21 @@ namespace WNPA02_Client
         /// <param name="addressToParse"></param>
         /// <param name="portToParse"></param>
         /// <returns></returns>
-        public static async Task ConnectToServer(TcpClient client, string addressToParse, string portToParse)
+        public static async Task ConnectToServer(GameData gameData, TcpClient client, NetworkStream stream)
         {
-            //The server will display the ip and port it lives on to the user. Collect it from the passed in values.
-            IPAddress placeholder = IPAddress.Parse(addressToParse);
-            int port = int.Parse(portToParse);
+            //Get the IP and the Port from the App.config file.
+            string serverIP = ConfigurationManager.AppSettings["serverIp"];
+            int port = int.Parse(ConfigurationManager.AppSettings["serverPort"]);
 
             //Try to connect the server and determine the IP and Port Windows sets for the client
             try
             {
-
+              
                 //Wait to establish a connection
-                await client.ConnectAsync(placeholder, port);
+                await client.ConnectAsync(serverIP, port);
 
                 //Send a message to the server with some sort of command to initate starting a game and the client id
-
+                GameLogic.SendData(stream, gameData);
             }
 
             catch (Exception ex)
@@ -94,6 +82,26 @@ namespace WNPA02_Client
 
         private void NewGame_Click(object sender, RoutedEventArgs e)
         {
+            //Initalize a struct with data.
+            GameData gameData = new GameData();
+
+            //Populate fields with specific info
+            gameData.command = "START";
+
+            //Make the TcpClient and get the stream
+            TcpClient client = new TcpClient();
+            NetworkStream stream = client.GetStream();
+
+            //Connect to the server and send the info
+            ConnectToServer(gameData, client, stream);
+
+            //Receive the data back.
+            gameData = GameLogic.ReceiveData(stream);
+
+            //Populate the strings in the text box.
+            PuzzleStringTextBox.Text = gameData.puzzle.PuzzleString;
+            SessionIDTextBox.Text = gameData.SessionID.ToString();
+            
 
         }
 

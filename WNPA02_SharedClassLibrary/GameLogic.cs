@@ -39,9 +39,7 @@ namespace WNPA02_SharedClassLibrary
         public Guid SessionID;
         public string command;
         public bool GuessCorrect;
-        public DateTime startTime;
         public int wordsLeft;
-        public int gameVersion;
         public bool isGameOver;
         public string wordGuessed;
         public string message;
