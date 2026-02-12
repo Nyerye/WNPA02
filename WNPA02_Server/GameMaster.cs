@@ -85,17 +85,23 @@ namespace WNPA02_Server
                         case "GUESS":
                             outgoing = GameLogic.UpdateGame(incoming);
                             GameLogic.SaveGameData(outgoing);
+                            GameLogic.SendData(stream, outgoing);
                             break;
                         case "RESUME":
                             outgoing = GameLogic.LoadGameData(incoming.SessionID);
                             outgoing.message = "Game Resumed!";
+                            GameLogic.SendData(stream, outgoing);
                             break;
                         case "END":
                             outgoing = GameLogic.EndGame(incoming);
                             GameLogic.SaveGameData(outgoing);
+                            GameLogic.SendData(stream, outgoing);
                             break;
                         default:
+                            outgoing = incoming;
+                            outgoing.message = "Unknown command received. No action taken.";
                             UI.Log($"Unknown command received from client: {incoming.command}");
+                            GameLogic.SendData(stream, outgoing);
                             return;
                     }
                 }

@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
-using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -24,8 +23,6 @@ namespace WNPA02_SharedClassLibrary
         public string wordGuessed;
         public string message;
         public Puzzle puzzle;
-
-
     }
 
     
@@ -79,7 +76,7 @@ namespace WNPA02_SharedClassLibrary
 
         public static void SendData(NetworkStream stream, GameData data)
         {
-            //Convert the struct into JSON and then into bytes to send over the stream.
+            //Convert the struct into JSON and then into bytes to send over the stream. Go until we hit a newline character to signify the end of the message.
             string jsonData = JsonConvert.SerializeObject(data);
             byte[] buffer = Encoding.UTF8.GetBytes(jsonData);
 
