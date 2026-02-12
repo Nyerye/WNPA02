@@ -70,7 +70,7 @@ namespace WNPA02_Server
                     //Initlaize the outgoing response back to the client
                     GameData outgoing;
 
-                    //Determine what to do absed on the packets command value
+                    //Determine what to do based on the packets command value
                     switch (incoming.command)
                     {
                         case "START":
@@ -83,6 +83,8 @@ namespace WNPA02_Server
                             GameLogic.SendData(stream, outgoing);
                             break;
                         case "GUESS":
+                            outgoing = GameLogic.LoadGameData(incoming.SessionID);
+                            outgoing.wordGuessed = incoming.wordGuessed;
                             outgoing = GameLogic.UpdateGame(incoming);
                             GameLogic.SaveGameData(outgoing);
                             GameLogic.SendData(stream, outgoing);
@@ -93,6 +95,7 @@ namespace WNPA02_Server
                             GameLogic.SendData(stream, outgoing);
                             break;
                         case "END":
+                            outgoing = GameLogic.LoadGameData(incoming.SessionID);
                             outgoing = GameLogic.EndGame(incoming);
                             GameLogic.SaveGameData(outgoing);
                             GameLogic.SendData(stream, outgoing);

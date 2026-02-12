@@ -97,7 +97,7 @@ namespace WNPA02_SharedClassLibrary
         public static void SendData(NetworkStream stream, GameData data)
         {
             //Convert the struct into JSON and then into bytes to send over the stream. Go until we hit a newline character to signify the end of the message.
-            string jsonData = JsonConvert.SerializeObject(data);
+            string jsonData = JsonConvert.SerializeObject(data)+"\n";
             byte[] buffer = Encoding.UTF8.GetBytes(jsonData);
 
             //Send it wherever its going.

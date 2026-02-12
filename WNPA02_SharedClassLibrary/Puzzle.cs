@@ -18,6 +18,7 @@ namespace WNPA02_SharedClassLibrary
         private int wordcount;
         private HashSet<string> words;
 
+
         public string PuzzleString
         {
             get
@@ -52,7 +53,8 @@ namespace WNPA02_SharedClassLibrary
 
             set
             {
-                words = value;
+                //Had to add this. When the JSON rebuilds, we lose the case insentivity from the initial load in FileIO. So this allows any, ANY and Any to work.
+                words = new HashSet<string>(value, StringComparer.OrdinalIgnoreCase);
             }
         }
 
@@ -86,7 +88,7 @@ namespace WNPA02_SharedClassLibrary
             else
             {
                 //Returns the lowercase word to our case insensitive hashset with any whitespasce trimmed off.
-                return puzzle.Words.Contains(guess.Trim().ToLower());
+                return puzzle.Words.Contains(guess.Trim());
             }
             
         }
