@@ -29,16 +29,39 @@ namespace WNPA02_SharedClassLibrary
 
     public static class GameLogic
     {
-        
+
         public static GameData UpdateGame(GameData gameData)
         {
-            //Check to see of the guess is valid
+            //In case somehow a transmission of data comes through after the game is already over, 
+            //check to see if the game is already over and if it is, return the game data with a message saying so without making any changes to the game data.
+            if (gameData.isGameOver)
+            {
+                gameData.message = "Game is already over.";
+                return gameData;
+            }
+
+            //Have the control loop based on the guess being a valid string and not null or whitespace.
+            gameData.wordGuessed = gameData.wordGuessed?.Trim();
+
+            //Check to see if the guess is valid
             gameData.GuessCorrect = Puzzle.IsValidGuess(gameData.wordGuessed, gameData.puzzle);
 
-            //Determine what to do based on a true/false guess and update the game data accordingly.
-            if (gameData.GuessCorrect)
+            //If the guess is valid being a string without being null or having whitespace, and the guess exists as an answer, update fields.
+            if (gameData.GuessCorrect && gameData.puzzle.Words.Contains(gameData.wordGuessed))
             {
-                gameData.message = "Correct Guess!";
+                gameData.wordsLeft--;
+                gameData.puzzle.Words.Remove(gameData.wordGuessed);
+
+                //After removing an option, make sure that was not the last one needed to win. 
+                if (gameData.wordsLeft <= 0)
+                {
+                    gameData.isGameOver = true;
+                    gameData.message = "Congratulations! You've guessed all the words!";
+                }
+                else
+                {
+                    gameData.message = "Correct Guess!";
+                }
             }
             else
             {
@@ -49,6 +72,7 @@ namespace WNPA02_SharedClassLibrary
             return gameData;
         }
 
+
         public static GameData EndGame(GameData gameData)
         {
             gameData.isGameOver = true;
@@ -56,11 +80,7 @@ namespace WNPA02_SharedClassLibrary
             return gameData;
         }
 
-        public static void SaveGameData(GameData gameData)
-        {
-            //Method that will used with the SessionID to create a session and save it for the user reconnects.
-        }
-
+       
         public static GameData ReceiveData(NetworkStream stream)
         {
             //Read up to 1024 bytes at a time from the stream.
@@ -85,9 +105,52 @@ namespace WNPA02_SharedClassLibrary
         }
         public static GameData LoadGameData(Guid sessionID)
         {
-            //Method that will be used to load the game data for a session when a user reconnects.
+            //Check to see if the SessionID is empty before trying to load. If it is, throw an exception.
+            if (sessionID == Guid.Empty)
+            {
+                throw new ArgumentException("SessionID cannot be empty.");
+            }
+
+            //Look for a JSON file named after the SessionID in the sessions directory. 
+            string sessionsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sessions");
+            string filePath = Path.Combine(sessionsDir, sessionID.ToString() + ".json");
+
+            //If it does not exist, make a barebones GameData struct with the SessionID and a message saying the session was not found, and return it.
+            if (!File.Exists(filePath))
+            {
+                GameData notFound = new GameData
+                {
+                    SessionID = sessionID,
+                    message = "Session not found."
+                };
+                return notFound;
+            }
+
+            //Read the JSON file and convert it back into a GameData struct, then return it.
+            string json = File.ReadAllText(filePath);
+            return JsonConvert.DeserializeObject<GameData>(json);
 
         }
+
+        public static void SaveGameData(GameData gameData)
+        {
+            //Check to see if the SessionID is set before trying to save. If not, throw an exception.
+            if (gameData.SessionID == Guid.Empty)
+            {
+                throw new ArgumentException("SessionID must be set before saving.");
+            }
+                
+            //Create a directory for the sessions if it doesn't exist and then save the game data as a JSON file named after the SessionID.
+            string sessionsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sessions");
+            Directory.CreateDirectory(sessionsDir);
+
+            //Save the game data as a JSON file named after the SessionID.
+            string filePath = Path.Combine(sessionsDir, gameData.SessionID.ToString() + ".json");
+            string json = JsonConvert.SerializeObject(gameData);
+            File.WriteAllText(filePath, json);
+        }
+
+
 
 
     }
