@@ -120,20 +120,33 @@ namespace WNPA02_SharedClassLibrary
             return gameData;
         }
 
-       /// <summary>
-       /// Method that receives data from a TcpCLient stream and transform the JSON Data back into a GameData struct.
-       /// Reads up to 1024 bytes at a time and uses the Newtonsoft's JSONConvert class to deserialize the JSON into a GameData struct.
-       /// </summary>
-       /// <param name="stream"></param>
-       /// <returns></returns>
+        /// <summary>
+        /// Method that receives data from a TcpCLient stream and transform the JSON Data back into a GameData struct.
+        /// Reads up to 1024 bytes at a time and uses the Newtonsoft's JSONConvert class to deserialize the JSON into a GameData struct.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <returns></returns>
         public static GameData ReceiveData(NetworkStream stream)
         {
             //Read up to 1024 bytes at a time from the stream.
             byte[] buffer = new byte[1024];
             int bytesRead = stream.Read(buffer, 0, buffer.Length);
 
-            //Convert into JSON and rebuild the struct on the other end.
+            //Guard 1 that detects if the other side closes prematurly.
+            if (bytesRead == 0)
+            {
+                throw new IOException("Remote closed the connection (no response).");
+            }
+            //Make the JSON string from the GameData struct
             string jsonData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+
+            //Make sure its not blank in case it was captured from a disconnect.
+            if (string.IsNullOrWhiteSpace(jsonData))
+            {
+                throw new IOException("Received empty/whitespace response.");
+            }
+
+            //Convert into JSON and rebuild the struct on the other end.
             GameData data = JsonConvert.DeserializeObject<GameData>(jsonData);
 
             return data;
