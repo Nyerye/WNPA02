@@ -19,6 +19,7 @@
 /// </references>
 /// 
 using System.Configuration;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
@@ -117,6 +118,7 @@ namespace WNPA02_Client
             //Update fields in the UI.
             PuzzleStringTextBox.Text = gameData.puzzle.PuzzleString;
             SessionIDTextBox.Text = gameData.SessionID.ToString();
+            TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
 
 
 
@@ -137,12 +139,8 @@ namespace WNPA02_Client
 
         private void About_Click(object sender, RoutedEventArgs e)
         {
-
-        }
-
-        private void GuessInput_KeyDown(object sender, KeyEventArgs e)
-        {
-
+            About aboutPage = new About();
+            aboutPage.ShowDialog();
         }
 
         private void SubmitGuess_Click(object sender, RoutedEventArgs e)

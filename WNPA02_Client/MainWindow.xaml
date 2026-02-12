@@ -104,8 +104,7 @@
                              Grid.Column="0"
                              FontSize="14"
                              VerticalContentAlignment="Center"
-                             Margin="0,0,10,0"
-                             KeyDown="GuessInput_KeyDown"/>
+                             Margin="0,0,10,0"/>
 
                     <Button x:Name="SubmitGuessButton" 
                             Grid.Column="1"
