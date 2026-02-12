@@ -40,6 +40,9 @@ namespace WNPA02_Client
     /// </summary>
     public partial class MainWindow : Window
     {
+
+       public static GameData gameData = new GameData();
+
         public MainWindow()
         {
             InitializeComponent();
@@ -56,7 +59,7 @@ namespace WNPA02_Client
         /// <param name="addressToParse"></param>
         /// <param name="portToParse"></param>
         /// <returns></returns>
-        public static async Task ConnectToServer(GameData gameData, TcpClient client, NetworkStream stream)
+        public static async Task<GameData>ConnectToServer(GameData gameData, TcpClient client)
         {
             //Get the IP and the Port from the App.config file.
             string serverIP = ConfigurationManager.AppSettings["serverIp"];
@@ -69,39 +72,56 @@ namespace WNPA02_Client
                 //Wait to establish a connection
                 await client.ConnectAsync(serverIP, port);
 
+                //Once connected, get the stream from it.
+                NetworkStream stream = client.GetStream();
+
                 //Send a message to the server with some sort of command to initate starting a game and the client id
                 GameLogic.SendData(stream, gameData);
+
+                //Receive the data back.
+                gameData = GameLogic.ReceiveData(stream);
+
+                return gameData;
             }
 
             catch (Exception ex)
             {
                 //Take the exception and display it to the user to see. 
                 MessageBox.Show(ex.ToString());
+
+                //Return the gameData struct to show SessionID and string error
+                return gameData;
             }
         }
 
-        private void NewGame_Click(object sender, RoutedEventArgs e)
+        private async void NewGame_Click(object sender, RoutedEventArgs e)
         {
-            //Initalize a struct with data.
-            GameData gameData = new GameData();
-
             //Populate fields with specific info
             gameData.command = "START";
 
             //Make the TcpClient and get the stream
             TcpClient client = new TcpClient();
-            NetworkStream stream = client.GetStream();
 
-            //Connect to the server and send the info
-            ConnectToServer(gameData, client, stream);
+            try
+            {
+                //Wait for the connection to the server to be accepted, data to be sent and then received back after processing
+                gameData = await ConnectToServer(gameData, client);
 
-            //Receive the data back.
-            gameData = GameLogic.ReceiveData(stream);
+            }
 
-            //Populate the strings in the text box.
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+            }
+
+            //Update fields in the UI.
             PuzzleStringTextBox.Text = gameData.puzzle.PuzzleString;
             SessionIDTextBox.Text = gameData.SessionID.ToString();
-            
+
+
+
+
+
 
         }
 

@@ -18,6 +18,7 @@ namespace WNPA02_SharedClassLibrary
         private HashSet<string> words;
 
 
+
         public string PuzzleString
         {
             get
@@ -58,7 +59,7 @@ namespace WNPA02_SharedClassLibrary
         }
 
         /// <summary>
-        /// Constructor for the Puzzle class.
+        /// Constructor for the Puzzle class used in making it from the FileIO class' LoadPuzzle method
         /// </summary>
         /// <param name="puzzleString"></param>
         /// <param name="wordCount"></param>

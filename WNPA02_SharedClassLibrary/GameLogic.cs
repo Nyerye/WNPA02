@@ -127,7 +127,7 @@ namespace WNPA02_SharedClassLibrary
         public static GameData ReceiveData(NetworkStream stream)
         {
             //Read up to 1024 bytes at a time from the stream.
-            byte[] buffer = new byte[1024];
+            byte[] buffer = new byte[8192];
             int bytesRead = stream.Read(buffer, 0, buffer.Length);
 
             //Guard 1 that detects if the other side closes prematurly.
