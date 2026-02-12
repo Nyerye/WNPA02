@@ -196,7 +196,7 @@ namespace WNPA02_SharedClassLibrary
         /// Method that saves a games session data.
         /// Takes the incoming GameData struct and looks at the SessionID value. If its not valid, it does not save and throws an error. Saves if valid.
         /// Creates a directory for the save files if once does not exist called sessions.
-        /// Serializes the GameData struct as a JSON file and saves it to the file.
+        /// Serializes the GameData struct as a JSON String to send over network.
         /// </summary>
         /// <param name="gameData"></param>
         /// <exception cref="ArgumentException"></exception>
