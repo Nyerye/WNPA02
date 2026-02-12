@@ -47,7 +47,7 @@ namespace WNPA02_Client
         /// Method that will fetch a socket for the client to use to connect to the server
         /// </summary>
         /// <returns></returns>
-        public static TcpClient FetchSocket()
+        //public static TcpClient FetchSocket()
         {
             //Fetch the player an empty socket that has an IPv4 address
             

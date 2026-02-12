@@ -149,7 +149,7 @@ namespace WNPA02_Server
                         default:
                             outgoing = incoming;
                             outgoing.message = "Unknown command received. No action taken.";
-                            UI.Log($"Unknown command received from client: {incoming.command}");
+                            Logger.Log($"Unknown command received from client: {incoming.command}");
                             GameLogic.SendData(stream, outgoing);
                             return;
                     }
@@ -157,7 +157,7 @@ namespace WNPA02_Server
             }
             catch (Exception ex)
             {
-                UI.Log($"Error handling client: {ex.Message}");
+                //Logger.Log($"Error handling client: {ex.Message}");
 
             }
 

@@ -13,11 +13,5 @@ namespace WNPA02_SharedClassLibrary
         {
             Console.WriteLine(message);
         }
-
-        public static void Log(string message)
-        {
-            StreamWriter logWritter = new StreamWriter("C:\\Logs",true);
-            logWritter.WriteLine(message);
-        }
     }
 }

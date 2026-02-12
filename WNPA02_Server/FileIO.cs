@@ -20,6 +20,7 @@
 /// 
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -33,7 +34,7 @@ namespace WNPA02_Server
     public class FileIO
     {
         //Declare the directory where we store the games, create instance of random class, declare the static list of file names to randomly choose from.
-        private static readonly string GameDirectory = "Games";
+        private static readonly string GameDirectory = "Puzzles";
         private static readonly Random random = new Random();
         private static readonly List<string> files = new List<string>
         {
@@ -75,11 +76,22 @@ namespace WNPA02_Server
             }
 
             //Write to the log it was successful.
-            UI.Log($"Loaded puzzle: {puzzleString} with {wordCount} words from {selectedFileName}");
+           // Logger.Log($"Loaded puzzle: {puzzleString} with {wordCount} words from {selectedFileName}");
 
             //Return the new Puzzle object transformed from the file.
             return new Puzzle(puzzleString, wordCount, validWords);
         }
 
     }
+
+    public class Logger
+    {
+        public static void Log(string message)
+        {
+            string filePath = ConfigurationManager.AppSettings["logPath"];
+            using StreamWriter logWritter = new StreamWriter(filePath);
+            logWritter.WriteLine(message);
+        }
+    }
 }
+
