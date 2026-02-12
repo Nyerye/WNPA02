@@ -1,13 +1,17 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace WNPA02_SharedClassLibrary
 {
+   
     public struct GameData
     {
         public Guid SessionID;
@@ -29,12 +33,6 @@ namespace WNPA02_SharedClassLibrary
     public static class GameLogic
     {
         
-        public static GameData InitializeGame(GameData gameData)
-        {
-
-            //Method that will be used to initialize the game data for a new game session and then save the game data for the session.
-        }
-
         public static GameData UpdateGame(GameData gameData)
         {
             //Check to see of the guess is valid
@@ -66,28 +64,34 @@ namespace WNPA02_SharedClassLibrary
             //Method that will used with the SessionID to create a session and save it for the user reconnects.
         }
 
-        public static GameData SendToClient(GameData gameData)
+        public static GameData ReceiveData(NetworkStream stream)
         {
-            //Method that will be used to send the game data to the client.
+            //Read up to 1024 bytes at a time from the stream.
+            byte[] buffer = new byte[1024];
+            int bytesRead = stream.Read(buffer, 0, buffer.Length);
+
+            //Convert into JSON and rebuild the struct on the other end.
+            string jsonData = Encoding.UTF8.GetString(buffer, 0, bytesRead);
+            GameData data = JsonConvert.DeserializeObject<GameData>(jsonData);
+
+            return data;
         }
 
-        public static GameData SendToServer(GameData gameData)
+        public static void SendData(NetworkStream stream, GameData data)
         {
-            //Method that will be used to send the data to the server to process.
-        }
+            //Convert the struct into JSON and then into bytes to send over the stream.
+            string jsonData = JsonConvert.SerializeObject(data);
+            byte[] buffer = Encoding.UTF8.GetBytes(jsonData);
 
+            //Send it wherever its going.
+            stream.Write(buffer, 0, buffer.Length);
+        }
         public static GameData LoadGameData(Guid sessionID)
         {
             //Method that will be used to load the game data for a session when a user reconnects.
 
         }
 
-        public static GameData ReceiveGameData(NetworkStream stream)
-        {
-            
-            //Method that will be used to receive the game data from the client.
-            
-        }
 
     }
 }

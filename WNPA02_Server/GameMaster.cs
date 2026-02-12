@@ -65,7 +65,7 @@ namespace WNPA02_Server
                 using (NetworkStream stream = client.GetStream())
                 {
                     //Receive the incoming message packet from the client
-                    GameData incoming = GameLogic.ReceiveGameData(stream);
+                    GameData incoming = GameLogic.ReceiveData(stream);
 
                     //Initlaize the outgoing response back to the client
                     GameData outgoing;
@@ -80,7 +80,7 @@ namespace WNPA02_Server
                             outgoing.isGameOver = false;
                             outgoing.message = $"Game started. String is {outgoing.puzzle.PuzzleString}";
                             GameLogic.SaveGameData(outgoing);
-                            //Send back to client
+                            GameLogic.SendData(stream, outgoing);
                             break;
                         case "GUESS":
                             outgoing = GameLogic.UpdateGame(incoming);
