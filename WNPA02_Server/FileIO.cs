@@ -1,4 +1,24 @@
-﻿using System;
+﻿/// <file>
+/// FileIO.cs
+/// </file>
+/// <project>
+/// Windows Netowrk Programming Assignment 2
+/// </project>
+/// <author>
+/// Nicholas Reilly
+/// </author>
+/// <date>
+/// February 12 2026
+/// </date>
+/// <description>
+/// Class file that holds the method that loads puzzles from their directory and transforms the data into a Puzzle class instance.
+/// </description>
+/// <references>
+/// Deitel, P., & Deitel, H. (2017). *C# 6 for Programmers Sixth Edition* 
+/// (Sixth, Ser. Deitel Development Series). Pearson Education.
+/// </references>
+/// 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,6 +27,9 @@ using WNPA02_SharedClassLibrary;
 
 namespace WNPA02_Server
 {
+    /// <summary>
+    /// FileIO class that holds the method to transform the data. 
+    /// </summary>
     public class FileIO
     {
         //Declare the directory where we store the games, create instance of random class, declare the static list of file names to randomly choose from.
@@ -17,6 +40,13 @@ namespace WNPA02_Server
             "puzzle1.txt", "puzzle2.txt", "puzzle3.txt", "puzzle4.txt"
         };
 
+        /// <summary>
+        /// Method that will load 1 of the 4 puzzle files from the directory and transform it into a game. 
+        /// </summary>
+        /// <returns>
+        /// A new Puzzle class instacne with the information that we parsed out of the file.
+        /// </returns>
+        /// <exception cref="FileNotFoundException"></exception>
         public static Puzzle LoadRandomPuzzle()
         {
             //Pick a random index from the list.
@@ -47,6 +77,7 @@ namespace WNPA02_Server
             //Write to the log it was successful.
             UI.Log($"Loaded puzzle: {puzzleString} with {wordCount} words from {selectedFileName}");
 
+            //Return the new Puzzle object transformed from the file.
             return new Puzzle(puzzleString, wordCount, validWords);
         }
 

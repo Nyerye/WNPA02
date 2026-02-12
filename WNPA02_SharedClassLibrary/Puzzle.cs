@@ -10,7 +10,6 @@ namespace WNPA02_SharedClassLibrary
     /// Puzzle class. Object that will hold the read information from 1/4 random files and can be used by the program to reference client guesses
     /// </summary>
     /// 
-
     public class Puzzle
     {
         //Set the private versions of the data members and then create their public versions.

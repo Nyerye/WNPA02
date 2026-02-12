@@ -1,4 +1,24 @@
-﻿using Newtonsoft.Json;
+﻿/// <file>
+/// GameLogic.cs
+/// </file>
+/// <project>
+/// Windows Network Programming Assignment 2
+/// </project>
+/// <author>
+/// Nicholas Reilly
+/// </author>
+/// <date>
+/// February 12 2026
+/// </date>
+/// <description>
+/// FIle that holds the methods that control game processes and the GameData struct.
+/// </description>
+/// <references>
+/// Deitel, P., & Deitel, H. (2017). *C# 6 for Programmers Sixth Edition* 
+/// (Sixth, Ser. Deitel Development Series). Pearson Education.
+/// </references>
+///
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,6 +31,9 @@ using System.Threading.Tasks;
 namespace WNPA02_SharedClassLibrary
 {
    
+    /// <summary>
+    /// Declaration of the GameData struct.
+    /// </summary>
     public struct GameData
     {
         public Guid SessionID;
@@ -26,10 +49,20 @@ namespace WNPA02_SharedClassLibrary
     }
 
     
-
+    /// <summary>
+    /// Class that holds the methods to modify the GameData structs, read them and write them.
+    /// </summary>
     public static class GameLogic
     {
-
+        /// <summary>
+        /// Method that updates a game by taking it the current struct with its corresponding values.
+        /// Looks at whether a guess is valid, and then if valid, whether it is a match to the answer key.
+        /// If it is, decrement the right words counter and remove the word from the guess pool.
+        /// </summary>
+        /// <param name="gameData"></param>
+        /// <returns>
+        /// The modified GameData struct.
+        /// </returns>
         public static GameData UpdateGame(GameData gameData)
         {
             //In case somehow a transmission of data comes through after the game is already over, 
@@ -72,7 +105,14 @@ namespace WNPA02_SharedClassLibrary
             return gameData;
         }
 
-
+        /// <summary>
+        /// Method that sets the true/false flag on whter the game is over.
+        /// Will send a message back to the user to display on client side.
+        /// </summary>
+        /// <param name="gameData"></param>
+        /// <returns>
+        /// The modified GameData struct.
+        /// </returns>
         public static GameData EndGame(GameData gameData)
         {
             gameData.isGameOver = true;
@@ -80,7 +120,12 @@ namespace WNPA02_SharedClassLibrary
             return gameData;
         }
 
-       
+       /// <summary>
+       /// Method that receives data from a TcpCLient stream and transform the JSON Data back into a GameData struct.
+       /// Reads up to 1024 bytes at a time and uses the Newtonsoft's JSONConvert class to deserialize the JSON into a GameData struct.
+       /// </summary>
+       /// <param name="stream"></param>
+       /// <returns></returns>
         public static GameData ReceiveData(NetworkStream stream)
         {
             //Read up to 1024 bytes at a time from the stream.
@@ -94,6 +139,12 @@ namespace WNPA02_SharedClassLibrary
             return data;
         }
 
+        /// <summary>
+        /// Method that uses the TcpClient stream to send the fully modified GameData struct.
+        /// Uses the Newtonsoft JSONConvert class to serialize it into a JSON string and send it across the netowrk to its recipiant.
+        /// </summary>
+        /// <param name="stream"></param>
+        /// <param name="data"></param>
         public static void SendData(NetworkStream stream, GameData data)
         {
             //Convert the struct into JSON and then into bytes to send over the stream. Go until we hit a newline character to signify the end of the message.
@@ -103,6 +154,15 @@ namespace WNPA02_SharedClassLibrary
             //Send it wherever its going.
             stream.Write(buffer, 0, buffer.Length);
         }
+
+        /// <summary>
+        /// Method that will read in a game session file.
+        /// Takes the GUID that represents the persons session id from the client and looks for a corresponding file.
+        /// If its not found, you get nothing. If it is found, loads and transforms the JSON data into a GameData struct for processing and or sending.
+        /// </summary>
+        /// <param name="sessionID"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public static GameData LoadGameData(Guid sessionID)
         {
             //Check to see if the SessionID is empty before trying to load. If it is, throw an exception.
@@ -132,6 +192,14 @@ namespace WNPA02_SharedClassLibrary
 
         }
 
+        /// <summary>
+        /// Method that saves a games session data.
+        /// Takes the incoming GameData struct and looks at the SessionID value. If its not valid, it does not save and throws an error. Saves if valid.
+        /// Creates a directory for the save files if once does not exist called sessions.
+        /// Serializes the GameData struct as a JSON file and saves it to the file.
+        /// </summary>
+        /// <param name="gameData"></param>
+        /// <exception cref="ArgumentException"></exception>
         public static void SaveGameData(GameData gameData)
         {
             //Check to see if the SessionID is set before trying to save. If not, throw an exception.
