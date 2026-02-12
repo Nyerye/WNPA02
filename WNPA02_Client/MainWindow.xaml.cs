@@ -30,25 +30,25 @@ namespace WNPA02_Client
 
             //Return it back. We will use it to connect to the server.
             return client;
-            
-            
+
+
         }
 
-        public static async Task ConnectToServer(TcpClient client,string addressToParse, string portToParse)
+        public static async Task ConnectToServer(TcpClient client, string addressToParse, string portToParse)
         {
             //The server will display the ip and port it lives on to the user. Collect it from the passed in values.
             IPAddress placeholder = IPAddress.Parse(addressToParse);
             int port = int.Parse(portToParse);
-            
+
             //Try to connect the server and determine the IP and Port Windows sets for the client
             try
             {
-                
+
                 //Wait to establish a connection
                 await client.ConnectAsync(placeholder, port);
 
                 //Send a message to the server with some sort of command to initate starting a game and the client id
-  
+
             }
 
             catch (Exception ex)
@@ -58,5 +58,34 @@ namespace WNPA02_Client
             }
         }
 
+        private void NewGame_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void ResumeGame_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void Exit_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void About_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
+
+        private void GuessInput_KeyDown(object sender, KeyEventArgs e)
+        {
+
+        }
+
+        private void SubmitGuess_Click(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 }
