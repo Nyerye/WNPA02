@@ -63,7 +63,7 @@ namespace WNPA02_SharedClassLibrary
             //If user runs out of time, return 0.
             if (remaining <= TimeSpan.Zero)
                 return "00:00";
-
+               
             //Return the current time left.
             return remaining.ToString(@"mm\:ss");
         }

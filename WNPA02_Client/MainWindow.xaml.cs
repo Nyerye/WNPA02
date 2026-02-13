@@ -43,6 +43,7 @@ namespace WNPA02_Client
     {
 
        public static GameData gameData = new GameData();
+       public static int wordsFound;
 
         public MainWindow()
         {
@@ -100,6 +101,9 @@ namespace WNPA02_Client
             //Populate fields with specific info
             gameData.command = "START";
 
+            //Start the stopwatch
+            GameTimer.StartStopWatch();
+
             //Make the TcpClient and get the stream
             TcpClient client = new TcpClient();
 
@@ -119,16 +123,59 @@ namespace WNPA02_Client
             PuzzleStringTextBox.Text = gameData.puzzle.PuzzleString;
             SessionIDTextBox.Text = gameData.SessionID.ToString();
             TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
+        }
 
+        private async void SubmitGuess_Click(object sender, RoutedEventArgs e)
+        {
+         
+            //Append the guessed word and the GUESS. Append the guessed word into the GameData structs guessed word.
+            gameData.command = "GUESS";
+            gameData.wordGuessed = GuessInputTextBox.Text;
 
+            
+            //Make the TcpClient and get the stream
+            TcpClient client = new TcpClient();
 
+            try
+            {
+                //Wait for the connection to the server to be accepted, data to be sent and then received back after processing.
+                gameData = await ConnectToServer(gameData, client);
 
+            }
 
+            catch (Exception ex)
+            {
+                //Display a message box error to the user.
+                MessageBox.Show(ex.ToString());
 
+            }
+
+            //Update fields in the UI.
+            string timeLeft = GameTimer.GetTimeRemaining();
+            if (timeLeft == "00:00")
+            {
+                MessageBox.Show("You have ran out of time for the game. Please play again!");
+                Application.Current.Shutdown();
+            }
+
+            else
+            {
+                TimeRemainingTextBox.Text = timeLeft;
+            }
+   
+            //Update the guessed words list if its correct.
+            if (gameData.GuessCorrect)
+            {
+                //Increment correct word counter, update the box of words found to show a new number and update found words box with the guess that was correct.
+                wordsFound++;
+                WordsFoundTextBox.Text = wordsFound.ToString();
+                FoundWordsTextBox.AppendText(gameData.wordGuessed+",");
+            }
         }
 
         private void ResumeGame_Click(object sender, RoutedEventArgs e)
         {
+
 
         }
 
@@ -143,9 +190,6 @@ namespace WNPA02_Client
             aboutPage.ShowDialog();
         }
 
-        private void SubmitGuess_Click(object sender, RoutedEventArgs e)
-        {
-
-        }
+        
     }
 }
