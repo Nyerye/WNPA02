@@ -131,7 +131,7 @@ namespace WNPA02_Client
             }
 
             //Update fields in the UI.
-            PuzzleStringTextBox.Text = gameData.puzzle.PuzzleString;
+            PuzzleStringTextBox.Text = gameData.puzzleString;
             SessionIDTextBox.Text = gameData.SessionID.ToString();
             TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
 

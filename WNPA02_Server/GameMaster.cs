@@ -125,6 +125,7 @@ namespace WNPA02_Server
                             outgoing.SessionID = Guid.NewGuid();
                             outgoing.isGameOver = false;
                             outgoing.wordsLeft = outgoing.puzzle.Words.Count;
+                            outgoing.puzzleString = outgoing.puzzle.PuzzleString;
                             outgoing.message = $"Game started. String is {outgoing.puzzle.PuzzleString}";
                             GameLogic.SaveGameData(outgoing);
                             GameLogic.SendData(stream, outgoing);

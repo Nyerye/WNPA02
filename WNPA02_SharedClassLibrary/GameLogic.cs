@@ -44,6 +44,7 @@ namespace WNPA02_SharedClassLibrary
         public bool isGameOver;
         public string wordGuessed;
         public string message;
+        public string puzzleString;
         public Puzzle puzzle;
     }
 
