@@ -73,7 +73,7 @@ namespace WNPA02_SharedClassLibrary
             }
 
             //Have the control loop based on the guess being a valid string and not null or whitespace.
-            gameData.wordGuessed = gameData.wordGuessed?.Trim();
+            gameData.wordGuessed = gameData.wordGuessed.Trim();
 
             //Check to see if the guess is valid
             gameData.GuessCorrect = Puzzle.IsValidGuess(gameData.wordGuessed, gameData.puzzle);

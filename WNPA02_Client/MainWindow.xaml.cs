@@ -45,7 +45,11 @@ namespace WNPA02_Client
 
         public static GameData gameData = new GameData();
         public static int wordsFound;
+        public static int totalWords;
 
+        /// <summary>
+        /// Constructor for the page
+        /// </summary>
         public MainWindow()
         {
             InitializeComponent();
@@ -97,6 +101,12 @@ namespace WNPA02_Client
             }
         }
 
+        /// <summary>
+        /// Event handler for when the user initiates a new game
+        /// Loads the Start Command and updates the client UI with the results back from the server.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void NewGame_Click(object sender, RoutedEventArgs e)
         {
             //Populate fields with specific info
@@ -124,138 +134,165 @@ namespace WNPA02_Client
             PuzzleStringTextBox.Text = gameData.puzzle.PuzzleString;
             SessionIDTextBox.Text = gameData.SessionID.ToString();
             TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
+
+            //Update the words to find value. This will determine whether the user wins
+            totalWords = gameData.puzzle.WordCount;
         }
 
+        /// <summary>
+        /// Event handler that fires when the user clicks the "Submit Guess" button.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void SubmitGuess_Click(object sender, RoutedEventArgs e)
         {
+            //Trim the whitespace off the guess string in case there is any.
+            string guess = GuessInputTextBox.Text.Trim();
 
-            //Append the guessed word and the GUESS. Append the guessed word into the GameData structs guessed word.
+            //Check to see if its whitespace. If so, do not allow a guess to go through.
+            if (string.IsNullOrWhiteSpace(guess))
+            {
+                MessageBox.Show("Guesses can not be blank. You must enter a valid string.");
+                return;
+            }
+
+            //Load the command and append the trimmed guess to the GameData struct.
             gameData.command = "GUESS";
-            gameData.wordGuessed = GuessInputTextBox.Text;
+            gameData.wordGuessed = guess;
 
+            using TcpClient client = new TcpClient();
 
-            //Make the TcpClient and get the stream
-            TcpClient client = new TcpClient();
-
+            //Try to connect to the server and get the modified struct back
             try
             {
-                //Wait for the connection to the server to be accepted, data to be sent and then received back after processing.
                 gameData = await ConnectToServer(gameData, client);
-
             }
-
             catch (Exception ex)
             {
-                //Display a message box error to the user.
                 MessageBox.Show(ex.ToString());
-
+                return;
             }
 
-            //Update fields in the UI.
-            string timeLeft = GameTimer.GetTimeRemaining();
-            if (timeLeft == "00:00")
+            //Check to see if the guess was correct. If not, show why. Messages can have many meanings.
+            if (!gameData.GuessCorrect)
             {
-                MessageBox.Show("You have ran out of time for the game. Please play again!");
+                MessageBox.Show(gameData.message);
+                return;
+            }
+
+            //Increment the wordsfound, udpate the UI with the value. 
+            //Add the guessed word that was correct to the found words box and update the time remaining.
+            wordsFound++;
+            WordsFoundTextBox.Text = wordsFound.ToString();
+            FoundWordsTextBox.AppendText(guess + ",");
+            TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
+
+            //Check to see if the user has won by checking the flag
+            if (gameData.isGameOver)
+            {
+                MessageBox.Show(gameData.message);
                 Application.Current.Shutdown();
+                return;
             }
 
-            else
+            //Check to see if the user has already exceeded the allowed playtime.
+            if(GameTimer.GetTimeRemaining() == "00:00")
             {
-                TimeRemainingTextBox.Text = timeLeft;
+                MessageBox.Show("You have run out of time. Please play again");
+                Application.Current.Shutdown();
+                return;
             }
 
-            //Update the guessed words list if its correct.
-            if (gameData.GuessCorrect)
-            {
-                //Increment correct word counter, update the box of words found to show a new number and update found words box with the guess that was correct.
-                wordsFound++;
-                WordsFoundTextBox.Text = wordsFound.ToString();
-                FoundWordsTextBox.AppendText(gameData.wordGuessed + ",");
-            }
-
-            //Build a cookie now that we have a game session where something is modified.
-            Cookie clientCookie = new Cookie(gameData.SessionID, PuzzleStringTextBox.Text, FoundWordsTextBox.Text, WordsFoundTextBox.Text);
-
-            //Write it to the cookies folder
+            //Write a Cookie in case there are disconnects
+            Cookie clientCookie = new Cookie(
+                gameData.SessionID,
+                PuzzleStringTextBox.Text,
+                FoundWordsTextBox.Text,
+                WordsFoundTextBox.Text
+            );
             Cookie.WriteCookieToFile(clientCookie);
         }
 
+        /// <summary>
+        /// Method that handles resuming a game.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private async void ResumeGame_Click(object sender, RoutedEventArgs e)
         {
             //Set the command to RESUME
             gameData.command = "RESUME";
 
             //Load the client cookie
+            Cookie clientCookie;
             try
             {
-                Cookie clientCookie = Cookie.ReadCookieFromFile();
+                clientCookie = Cookie.ReadCookieFromFile();
                 if (clientCookie != null)
                 {
+                    //Append the saved sessionID to the GameData struct.
                     gameData.SessionID = clientCookie.SessionID;
-                    gameData.puzzle.PuzzleString = clientCookie.PuzzleString;
+
+                    //Update the UI fields with the cookie data.
                     PuzzleStringTextBox.Text = clientCookie.PuzzleString;
                     FoundWordsTextBox.Text = clientCookie.WordsGuessed;
-                    WordsFoundTextBox.Text = clientCookie.WordsLeft;
+
+                    //Repopulate the string we were guessing words in and the sessionid
+                    SessionIDTextBox.Text = clientCookie.SessionID.ToString();
+
+                    //Restore total words found directly
+                    wordsFound = int.Parse(clientCookie.WordsLeft);
+                    WordsFoundTextBox.Text = wordsFound.ToString();
                 }
                 else
                 {
                     MessageBox.Show("No saved game found. Please start a new game.");
+                    return;
                 }
             }
             catch (Exception ex)
             {
                 MessageBox.Show(ex.ToString());
+                return;
             }
 
-            //Start the stopwatch again to keep track of time remaining. Better user experience to have the time keep going.
+            //Start the stopwatch again to keep track of time remaining. Better user experience.
             GameTimer.StartStopWatch();
 
+            //Populate the time immediately so it isn't blank until a guess
+            TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
+
             //Make the TcpClient and get the stream
-            TcpClient client = new TcpClient();
+            using TcpClient client = new TcpClient();
 
             try
             {
                 //Wait for the connection to the server to be accepted, data to be sent and then received back after processing.
                 gameData = await ConnectToServer(gameData, client);
-
             }
-
             catch (Exception ex)
             {
                 //Display a message box error to the user.
                 MessageBox.Show(ex.ToString());
-
+                return;
             }
-
-            //Update fields in the UI.
-            string timeLeft = GameTimer.GetTimeRemaining();
-            if (timeLeft == "00:00")
-            {
-                MessageBox.Show("You have ran out of time for the game. Please play again!");
-                Application.Current.Shutdown();
-            }
-
-            else
-            {
-                TimeRemainingTextBox.Text = timeLeft;
-            }
-
-            //Update the guessed words list if its correct.
-            if (gameData.GuessCorrect)
-            {
-                //Increment correct word counter, update the box of words found to show a new number and update found words box with the guess that was correct.
-                wordsFound++;
-                WordsFoundTextBox.Text = wordsFound.ToString();
-                FoundWordsTextBox.AppendText(gameData.wordGuessed + ",");
-            }
-
         }
 
+        /// <summary>
+        /// Event handler exits the application when the user clicks exit from the File menu.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
             this.Close();
         }
 
+        /// <summary>
+        /// Event handler that exits the application when the user clicks the X in the top right of the window.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void XBtn_Click(object sender, CancelEventArgs e)
         {
             string message = "Are you sure you want to exit the game?";
@@ -271,7 +308,11 @@ namespace WNPA02_Client
                 e.Cancel = true;
             }
         }
-
+        /// <summary>
+        /// Event handler that opens the About page.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void About_Click(object sender, RoutedEventArgs e)
         {
             About aboutPage = new About();
