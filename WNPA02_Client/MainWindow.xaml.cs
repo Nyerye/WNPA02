@@ -260,7 +260,7 @@ namespace WNPA02_Client
                 return;
             }
 
-            //Start the timer again.
+            //Start the timer again and resubscribe to the UpdateTimerUI
             GameTimer.StartTimer();
             GameTimer.clientTimer.Tick += UpdateTimerUI;
 

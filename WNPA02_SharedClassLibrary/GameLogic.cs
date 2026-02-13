@@ -11,7 +11,7 @@
 /// February 12 2026
 /// </date>
 /// <description>
-/// FIle that holds the methods that control game processes and the GameData struct.
+/// File that holds the methods that control game processes and the GameData struct.
 /// </description>
 /// <references>
 /// Deitel, P., & Deitel, H. (2017). *C# 6 for Programmers Sixth Edition* 
