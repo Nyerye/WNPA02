@@ -13,16 +13,14 @@ namespace WNPA02_Client
     {
 
         private Guid sessionid;
-        private string timeleft;
         private string puzzlestring;
         private string wordsguessed;
         private string wordsleft;
         private static readonly string FilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "cookie.json");
 
-        public Cookie(Guid sessionid, string timeleft, string puzzlestring, string wordsguessed, string wordsleft)
+        public Cookie(Guid sessionid, string puzzlestring, string wordsguessed, string wordsleft)
         {
             this.sessionid = sessionid;
-            this.timeleft = timeleft;
             this.puzzlestring = puzzlestring;
             this.wordsguessed = wordsguessed;
             this.wordsleft = wordsleft;
@@ -37,18 +35,6 @@ namespace WNPA02_Client
             set
             {
                 sessionid = value;
-            }
-        }
-
-        public string TimeLeft
-        {
-            get
-            {
-                return timeleft;
-            }
-            set
-            {
-                timeleft = value;
             }
         }
 

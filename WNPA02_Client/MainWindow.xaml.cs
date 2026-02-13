@@ -124,9 +124,6 @@ namespace WNPA02_Client
             PuzzleStringTextBox.Text = gameData.puzzle.PuzzleString;
             SessionIDTextBox.Text = gameData.SessionID.ToString();
             TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
-
-            //Build a client side cookie that holds the values we want to preserve.
-            Cookie clientCookie = new Cookie(gameData.SessionID, TimeRemainingTextBox.Text, PuzzleStringTextBox.Text, null, null);
         }
 
         private async void SubmitGuess_Click(object sender, RoutedEventArgs e)
@@ -177,27 +174,80 @@ namespace WNPA02_Client
             }
 
             //Build a cookie now that we have a game session where something is modified.
-            Cookie clientCookie = new Cookie(gameData.SessionID, TimeRemainingTextBox.Text, PuzzleStringTextBox.Text, FoundWordsTextBox.Text, WordsFoundTextBox.Text);
+            Cookie clientCookie = new Cookie(gameData.SessionID, PuzzleStringTextBox.Text, FoundWordsTextBox.Text, WordsFoundTextBox.Text);
 
             //Write it to the cookies folder
             Cookie.WriteCookieToFile(clientCookie);
         }
 
-        private void ResumeGame_Click(object sender, RoutedEventArgs e)
+        private async void ResumeGame_Click(object sender, RoutedEventArgs e)
         {
             //Set the command to RESUME
+            gameData.command = "RESUME";
 
             //Load the client cookie
             try
             {
-
+                Cookie clientCookie = Cookie.ReadCookieFromFile();
+                if (clientCookie != null)
+                {
+                    gameData.SessionID = clientCookie.SessionID;
+                    gameData.puzzle.PuzzleString = clientCookie.PuzzleString;
+                    PuzzleStringTextBox.Text = clientCookie.PuzzleString;
+                    FoundWordsTextBox.Text = clientCookie.WordsGuessed;
+                    WordsFoundTextBox.Text = clientCookie.WordsLeft;
+                }
+                else
+                {
+                    MessageBox.Show("No saved game found. Please start a new game.");
+                }
             }
-            catch
+            catch (Exception ex)
             {
+                MessageBox.Show(ex.ToString());
+            }
+
+            //Start the stopwatch again to keep track of time remaining. Better user experience to have the time keep going.
+            GameTimer.StartStopWatch();
+
+            //Make the TcpClient and get the stream
+            TcpClient client = new TcpClient();
+
+            try
+            {
+                //Wait for the connection to the server to be accepted, data to be sent and then received back after processing.
+                gameData = await ConnectToServer(gameData, client);
 
             }
-            
-            //Send over to server
+
+            catch (Exception ex)
+            {
+                //Display a message box error to the user.
+                MessageBox.Show(ex.ToString());
+
+            }
+
+            //Update fields in the UI.
+            string timeLeft = GameTimer.GetTimeRemaining();
+            if (timeLeft == "00:00")
+            {
+                MessageBox.Show("You have ran out of time for the game. Please play again!");
+                Application.Current.Shutdown();
+            }
+
+            else
+            {
+                TimeRemainingTextBox.Text = timeLeft;
+            }
+
+            //Update the guessed words list if its correct.
+            if (gameData.GuessCorrect)
+            {
+                //Increment correct word counter, update the box of words found to show a new number and update found words box with the guess that was correct.
+                wordsFound++;
+                WordsFoundTextBox.Text = wordsFound.ToString();
+                FoundWordsTextBox.AppendText(gameData.wordGuessed + ",");
+            }
 
         }
 
