@@ -42,4 +42,6 @@ namespace WNPA02_SharedClassLibrary
             Console.WriteLine(message);
         }
     }
+
+    
 }

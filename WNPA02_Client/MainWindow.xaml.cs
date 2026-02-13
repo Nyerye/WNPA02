@@ -156,6 +156,22 @@ namespace WNPA02_Client
                 return;
             }
 
+            //Check to see if the user has already exceeded the allowed playtime.
+            if (GameTimer.GetTimeRemaining() == "00:00")
+            {
+                MessageBox.Show("You have run out of time. Please play again");
+                Application.Current.Shutdown();
+                return;
+            }
+
+            //Check to see if the user has won by checking the flag
+            if (gameData.isGameOver)
+            {
+                MessageBox.Show(gameData.message);
+                Application.Current.Shutdown();
+                return;
+            }
+
             //Load the command and append the trimmed guess to the GameData struct.
             gameData.command = "GUESS";
             gameData.wordGuessed = guess;
@@ -186,22 +202,6 @@ namespace WNPA02_Client
             WordsFoundTextBox.Text = wordsFound.ToString();
             FoundWordsTextBox.AppendText(guess + ",");
             TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
-
-            //Check to see if the user has won by checking the flag
-            if (gameData.isGameOver)
-            {
-                MessageBox.Show(gameData.message);
-                Application.Current.Shutdown();
-                return;
-            }
-
-            //Check to see if the user has already exceeded the allowed playtime.
-            if(GameTimer.GetTimeRemaining() == "00:00")
-            {
-                MessageBox.Show("You have run out of time. Please play again");
-                Application.Current.Shutdown();
-                return;
-            }
 
             //Write a Cookie in case there are disconnects
             Cookie clientCookie = new Cookie(
