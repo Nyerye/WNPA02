@@ -112,8 +112,10 @@ namespace WNPA02_Client
             //Populate fields with specific info
             gameData.command = "START";
 
-            //Start the stopwatch
-            GameTimer.StartStopWatch();
+            //Start the timer.
+            GameTimer.StartTimer();
+            GameTimer.clientTimer.Tick += UpdateTimerUI;
+
 
             //Make the TcpClient and get the stream
             TcpClient client = new TcpClient();
@@ -195,7 +197,7 @@ namespace WNPA02_Client
             wordsFound++;
             WordsFoundTextBox.Text = wordsFound.ToString();
             FoundWordsTextBox.AppendText(guess + ",");
-            TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
+           
 
             //Check to see if the user has won.
             if (gameData.isGameOver)
@@ -258,11 +260,9 @@ namespace WNPA02_Client
                 return;
             }
 
-            //Start the stopwatch again to keep track of time remaining. Better user experience.
-            GameTimer.StartStopWatch();
-
-            //Populate the time immediately so it isn't blank until a guess
-            TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
+            //Start the timer again.
+            GameTimer.StartTimer();
+            GameTimer.clientTimer.Tick += UpdateTimerUI;
 
             //Make the TcpClient and get the stream
             using TcpClient client = new TcpClient();
@@ -320,6 +320,26 @@ namespace WNPA02_Client
             About aboutPage = new About();
             aboutPage.ShowDialog();
         }
+
+        /// <summary>
+        /// Tick event handler that live updates the time after a New Game
+        /// sets its up. If the time is reached, it ends the game.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void UpdateTimerUI(object sender, EventArgs e)
+        {
+            //Call the method in GameTimer that returns our time as a string and append.
+            TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
+
+            //End the game if time is up.
+            if (GameTimer.IsTimeUp())
+            {
+                MessageBox.Show("You have run out of time.");
+                Application.Current.Shutdown();
+            }
+        }
+
 
 
     }
