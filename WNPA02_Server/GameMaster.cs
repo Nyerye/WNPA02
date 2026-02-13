@@ -141,12 +141,6 @@ namespace WNPA02_Server
                             outgoing.message = "Game Resumed!";
                             GameLogic.SendData(stream, outgoing);
                             break;
-                        case "END":
-                            outgoing = GameLogic.LoadGameData(incoming.SessionID);
-                            outgoing = GameLogic.EndGame(incoming);
-                            GameLogic.SaveGameData(outgoing);
-                            GameLogic.SendData(stream, outgoing);
-                            break;
                         default:
                             outgoing = incoming;
                             outgoing.message = "Unknown command received. No action taken.";
