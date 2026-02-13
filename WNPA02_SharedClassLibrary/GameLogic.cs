@@ -45,6 +45,7 @@ namespace WNPA02_SharedClassLibrary
         public string wordGuessed;
         public string message;
         public string puzzleString;
+        public int puzzleWordCount;
         public Puzzle puzzle;
     }
 

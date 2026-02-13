@@ -136,7 +136,7 @@ namespace WNPA02_Client
             TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
 
             //Update the words to find value. This will determine whether the user wins
-            totalWords = gameData.puzzle.WordCount;
+            totalWords = gameData.puzzleWordCount;
         }
 
         /// <summary>
