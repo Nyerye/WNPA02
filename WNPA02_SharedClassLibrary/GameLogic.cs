@@ -19,6 +19,7 @@
 /// </references>
 ///
 using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -30,7 +31,7 @@ using System.Threading.Tasks;
 
 namespace WNPA02_SharedClassLibrary
 {
-   
+
     /// <summary>
     /// Declaration of the GameData struct.
     /// </summary>
@@ -46,12 +47,20 @@ namespace WNPA02_SharedClassLibrary
         public Puzzle puzzle;
     }
 
-    
+
     /// <summary>
     /// Class that holds the methods to modify the GameData structs, read them and write them.
     /// </summary>
     public static class GameLogic
     {
+        //A custom JSON serializer settings object that uses a custom contract resolver to ignore the Puzzle object when sending data over the network.
+        //I found a way to do this without destorying how I update things through Newtonsofts documentation: https://www.newtonsoft.com/json/help/html/customjsonconverter.htm
+        private static readonly JsonSerializerSettings NetworkJson = new JsonSerializerSettings
+        {
+            ContractResolver = new NetworkContractResolver(),
+            Formatting = Formatting.None
+        };
+
 
         /// <summary>
         /// Method that updates a game by taking it the current struct with its corresponding values.
@@ -153,7 +162,7 @@ namespace WNPA02_SharedClassLibrary
             }
 
             //Convert into JSON and rebuild the struct on the other end.
-            GameData data = JsonConvert.DeserializeObject<GameData>(jsonData);
+            GameData data = JsonConvert.DeserializeObject<GameData>(jsonData, NetworkJson);
 
             return data;
         }
@@ -167,7 +176,8 @@ namespace WNPA02_SharedClassLibrary
         public static void SendData(NetworkStream stream, GameData data)
         {
             //Convert the struct into JSON and then into bytes to send over the stream. Go until we hit a newline character to signify the end of the message.
-            string jsonData = JsonConvert.SerializeObject(data)+"\n";
+            //Stop JSON string once we hit the Puzzle class.
+            string jsonData = JsonConvert.SerializeObject(data, NetworkJson) + "\n";
             byte[] buffer = Encoding.UTF8.GetBytes(jsonData);
 
             //Send it wherever its going.
@@ -226,7 +236,7 @@ namespace WNPA02_SharedClassLibrary
             {
                 throw new ArgumentException("SessionID must be set before saving.");
             }
-                
+
             //Create a directory for the sessions if it doesn't exist and then save the game data as a JSON file named after the SessionID.
             string sessionsDir = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "sessions");
             Directory.CreateDirectory(sessionsDir);
@@ -238,5 +248,23 @@ namespace WNPA02_SharedClassLibrary
         }
 
     }
+
+
+    internal sealed class NetworkContractResolver : DefaultContractResolver
+    {
+        protected override JsonProperty CreateProperty(
+            System.Reflection.MemberInfo member,
+            MemberSerialization memberSerialization)
+        {
+            JsonProperty prop = base.CreateProperty(member, memberSerialization);
+
+            // Do not send the Puzzle object over the network
+            if (prop.PropertyName == nameof(GameData.puzzle))
+                prop.Ignored = true;
+
+            return prop;
+        }
+    }
+
 }
 
