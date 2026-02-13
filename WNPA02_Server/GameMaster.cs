@@ -124,14 +124,15 @@ namespace WNPA02_Server
                             outgoing.puzzle = FileIO.LoadRandomPuzzle();
                             outgoing.SessionID = Guid.NewGuid();
                             outgoing.isGameOver = false;
+                            outgoing.wordsLeft = outgoing.puzzle.Words.Count;
                             outgoing.message = $"Game started. String is {outgoing.puzzle.PuzzleString}";
                             GameLogic.SaveGameData(outgoing);
                             GameLogic.SendData(stream, outgoing);
                             break;
                         case "GUESS":
                             outgoing = GameLogic.LoadGameData(incoming.SessionID);
-                            outgoing.wordGuessed = incoming.wordGuessed;
-                            outgoing = GameLogic.UpdateGame(incoming);
+                            outgoing.wordGuessed = (incoming.wordGuessed.Trim());
+                            outgoing = GameLogic.UpdateGame(outgoing);
                             GameLogic.SaveGameData(outgoing);
                             GameLogic.SendData(stream, outgoing);
                             break;
@@ -157,7 +158,7 @@ namespace WNPA02_Server
             }
             catch (Exception ex)
             {
-                //Logger.Log($"Error handling client: {ex.Message}");
+                Logger.Log($"Error handling client: {ex.Message}");
 
             }
 

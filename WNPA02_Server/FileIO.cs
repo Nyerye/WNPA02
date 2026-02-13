@@ -76,22 +76,35 @@ namespace WNPA02_Server
             }
 
             //Write to the log it was successful.
-           // Logger.Log($"Loaded puzzle: {puzzleString} with {wordCount} words from {selectedFileName}");
+            Logger.Log($"Loaded puzzle: {puzzleString} with {wordCount} words from {selectedFileName}");
 
             //Return the new Puzzle object transformed from the file.
             return new Puzzle(puzzleString, wordCount, validWords);
         }
 
     }
-
-    public class Logger
+    /// <summary>
+    /// Method that is used to write out logs.
+    /// </summary>
+    public static class Logger
     {
+        //Declasre the file path for the log file, which is in the same directory as the executable and called server.log.
+        private static readonly string LogFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "server.log");
+
         public static void Log(string message)
         {
-            string filePath = ConfigurationManager.AppSettings["logPath"];
-            using StreamWriter logWritter = new StreamWriter(filePath);
-            logWritter.WriteLine(message);
+            //Try to use a StreamWriter to write the log message to the file. If it fails, we catch the exception and do nothing as we dont want to crash the server if logging fails.
+            try
+            {
+                using StreamWriter logWriter = new StreamWriter(LogFilePath, append: true);
+                logWriter.WriteLine($"{DateTime.Now}: {message}");
+            }
+            catch
+            {
+                
+            }
         }
     }
+    
 }
 

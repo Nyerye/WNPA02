@@ -52,7 +52,7 @@ namespace WNPA02_SharedClassLibrary
     /// </summary>
     public static class GameLogic
     {
-        
+
         /// <summary>
         /// Method that updates a game by taking it the current struct with its corresponding values.
         /// Looks at whether a guess is valid, and then if valid, whether it is a match to the answer key.
@@ -64,45 +64,52 @@ namespace WNPA02_SharedClassLibrary
         /// </returns>
         public static GameData UpdateGame(GameData gameData)
         {
-            //In case somehow a transmission of data comes through after the game is already over, 
-            //check to see if the game is already over and if it is, return the game data with a message saying so without making any changes to the game data.
+            //Make sure a stale transmission has not gotten thorugh before traversing. If so, return the message back.
             if (gameData.isGameOver)
             {
+                gameData.GuessCorrect = false;
                 gameData.message = "Game is already over.";
                 return gameData;
             }
 
-            //Have the control loop based on the guess being a valid string and not null or whitespace.
-            gameData.wordGuessed = gameData.wordGuessed.Trim();
+            //Set the flag to be false. If it is a match, it will go through.
+            gameData.GuessCorrect = false;
 
-            //Check to see if the guess is valid
-            gameData.GuessCorrect = Puzzle.IsValidGuess(gameData.wordGuessed, gameData.puzzle);
+            //Trim the whitespace off the guess string and reapply it back to the struct.
+            string guess = (gameData.wordGuessed).Trim();
+            gameData.wordGuessed = guess;
 
-            //If the guess is valid being a string without being null or having whitespace, and the guess exists as an answer, update fields.
-            if (gameData.GuessCorrect && gameData.puzzle.Words.Contains(gameData.wordGuessed))
+            //Using this bool value to determine whats next
+            bool ok = Puzzle.IsValidGuess(guess, gameData.puzzle);
+            gameData.GuessCorrect = ok;
+
+            //If its not a valid guess, send the message back to the user and return the struct without modifying anything else.
+            if (!ok)
             {
-                gameData.wordsLeft--;
-                gameData.puzzle.Words.Remove(gameData.wordGuessed);
+                gameData.message = "Incorrect guess.";
+                return gameData;
+            }
 
-                //After removing an option, make sure that was not the last one needed to win. 
-                if (gameData.wordsLeft <= 0)
-                {
-                    gameData.isGameOver = true;
-                    gameData.message = "Congratulations! You've guessed all the words!";
-                }
-                else
-                {
-                    gameData.message = "Correct Guess!";
-                }
+            //Have a barrier to prevent the user from guessing the same word twice and getting free points.
+            gameData.puzzle.Words.Remove(guess);
+
+            //Decrement the wordsLeft count.
+            gameData.wordsLeft--;
+
+            //If its less or equal to zero, se tthe game over flag and send a congratulatory message back to the user. If not, send a correct message back.
+            if (gameData.wordsLeft <= 0)
+            {
+                gameData.isGameOver = true;
+                gameData.message = "Congratulations! You've guessed all the words!";
             }
             else
             {
-                gameData.message = "Incorrect Guess!";
+                gameData.message = "Correct!";
             }
 
-            //Return the updated struct with the new game data.
             return gameData;
         }
+
 
         /// <summary>
         /// Method that sets the true/false flag on whter the game is over.
@@ -229,9 +236,6 @@ namespace WNPA02_SharedClassLibrary
             string json = JsonConvert.SerializeObject(gameData);
             File.WriteAllText(filePath, json);
         }
-
-
-
 
     }
 }
