@@ -18,6 +18,7 @@
 /// (Sixth, Ser. Deitel Development Series). Pearson Education.
 /// </references>
 /// 
+using System.ComponentModel;
 using System.Configuration;
 using System.Diagnostics;
 using System.Net;
@@ -42,15 +43,15 @@ namespace WNPA02_Client
     public partial class MainWindow : Window
     {
 
-       public static GameData gameData = new GameData();
-       public static int wordsFound;
+        public static GameData gameData = new GameData();
+        public static int wordsFound;
 
         public MainWindow()
         {
             InitializeComponent();
         }
 
-        
+
 
         /// <summary>
         /// Method that will allows the client to connect to the server. 
@@ -61,7 +62,7 @@ namespace WNPA02_Client
         /// <param name="addressToParse"></param>
         /// <param name="portToParse"></param>
         /// <returns></returns>
-        public static async Task<GameData>ConnectToServer(GameData gameData, TcpClient client)
+        public static async Task<GameData> ConnectToServer(GameData gameData, TcpClient client)
         {
             //Get the IP and the Port from the App.config file.
             string serverIP = ConfigurationManager.AppSettings["serverIp"];
@@ -70,7 +71,7 @@ namespace WNPA02_Client
             //Try to connect the server and determine the IP and Port Windows sets for the client
             try
             {
-              
+
                 //Wait to establish a connection
                 await client.ConnectAsync(serverIP, port);
 
@@ -127,12 +128,12 @@ namespace WNPA02_Client
 
         private async void SubmitGuess_Click(object sender, RoutedEventArgs e)
         {
-         
+
             //Append the guessed word and the GUESS. Append the guessed word into the GameData structs guessed word.
             gameData.command = "GUESS";
             gameData.wordGuessed = GuessInputTextBox.Text;
 
-            
+
             //Make the TcpClient and get the stream
             TcpClient client = new TcpClient();
 
@@ -162,14 +163,14 @@ namespace WNPA02_Client
             {
                 TimeRemainingTextBox.Text = timeLeft;
             }
-   
+
             //Update the guessed words list if its correct.
             if (gameData.GuessCorrect)
             {
                 //Increment correct word counter, update the box of words found to show a new number and update found words box with the guess that was correct.
                 wordsFound++;
                 WordsFoundTextBox.Text = wordsFound.ToString();
-                FoundWordsTextBox.AppendText(gameData.wordGuessed+",");
+                FoundWordsTextBox.AppendText(gameData.wordGuessed + ",");
             }
         }
 
@@ -181,7 +182,23 @@ namespace WNPA02_Client
 
         private void Exit_Click(object sender, RoutedEventArgs e)
         {
+            this.Close();
+        }
 
+        private void XBtn_Click(object sender, CancelEventArgs e)
+        {
+            string message = "Are you sure you want to exit the game?";
+            string title = "Warning";
+            MessageBoxButton buttons = MessageBoxButton.YesNo;
+            MessageBoxResult result = MessageBox.Show(message, title, buttons);
+            if (result == MessageBoxResult.Yes)
+            {
+                e.Cancel = false;
+            }
+            else
+            {
+                e.Cancel = true;
+            }
         }
 
         private void About_Click(object sender, RoutedEventArgs e)
@@ -190,6 +207,6 @@ namespace WNPA02_Client
             aboutPage.ShowDialog();
         }
 
-        
+
     }
 }
