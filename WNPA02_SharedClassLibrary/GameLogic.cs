@@ -52,6 +52,7 @@ namespace WNPA02_SharedClassLibrary
     /// </summary>
     public static class GameLogic
     {
+        
         /// <summary>
         /// Method that updates a game by taking it the current struct with its corresponding values.
         /// Looks at whether a guess is valid, and then if valid, whether it is a match to the answer key.

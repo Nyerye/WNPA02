@@ -124,6 +124,9 @@ namespace WNPA02_Client
             PuzzleStringTextBox.Text = gameData.puzzle.PuzzleString;
             SessionIDTextBox.Text = gameData.SessionID.ToString();
             TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
+
+            //Build a client side cookie that holds the values we want to preserve.
+            Cookie clientCookie = new Cookie(gameData.SessionID, TimeRemainingTextBox.Text, PuzzleStringTextBox.Text, null, null);
         }
 
         private async void SubmitGuess_Click(object sender, RoutedEventArgs e)
@@ -172,11 +175,29 @@ namespace WNPA02_Client
                 WordsFoundTextBox.Text = wordsFound.ToString();
                 FoundWordsTextBox.AppendText(gameData.wordGuessed + ",");
             }
+
+            //Build a cookie now that we have a game session where something is modified.
+            Cookie clientCookie = new Cookie(gameData.SessionID, TimeRemainingTextBox.Text, PuzzleStringTextBox.Text, FoundWordsTextBox.Text, WordsFoundTextBox.Text);
+
+            //Write it to the cookies folder
+            Cookie.WriteCookieToFile(clientCookie);
         }
 
         private void ResumeGame_Click(object sender, RoutedEventArgs e)
         {
+            //Set the command to RESUME
 
+            //Load the client cookie
+            try
+            {
+
+            }
+            catch
+            {
+
+            }
+            
+            //Send over to server
 
         }
 
