@@ -19,6 +19,7 @@
 /// </references>
 /// 
 using System.Configuration;
+using WNPA02_SharedClassLibrary;
 
 namespace WNPA02_Server
 {
@@ -33,7 +34,7 @@ namespace WNPA02_Server
         {
             string configIp = ConfigurationManager.AppSettings["serverHost"];
             string configPort = ConfigurationManager.AppSettings["serverPort"];
-            Console.WriteLine($"Server online at {configIp}:{configPort}");
+            UI.Print($"Server online at {configIp}:{configPort}");
             await GameMaster.Listen();
         }
     }

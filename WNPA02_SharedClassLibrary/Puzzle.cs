@@ -1,5 +1,26 @@
-﻿using System;
+﻿/// <file>
+/// Puzzle.cs
+/// </file>
+/// <project>
+/// Windows Desktop Programming Assignment 2
+/// </project>
+/// <author>
+/// Nicholas Reilly
+/// </author>
+/// <date>
+/// Februrary 13 2026
+/// </date>
+/// <description>
+/// Class file that holds the Puzzle constructors, data members and methods.
+/// </description>
+/// <references>
+/// Deitel, P., & Deitel, H. (2017). *C# 6 for Programmers Sixth Edition* 
+/// (Sixth, Ser. Deitel Development Series). Pearson Education.
+/// </references>
+///
+using System;
 using System.Collections.Generic;
+using System.Diagnostics.Tracing;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -35,7 +56,7 @@ namespace WNPA02_SharedClassLibrary
         {
             get
             {
-                return wordcount; 
+                return wordcount;
             }
 
             set
@@ -56,6 +77,14 @@ namespace WNPA02_SharedClassLibrary
                 //Had to add this. When the JSON rebuilds, we lose the case insentivity from the initial load in FileIO. So this allows any, ANY and Any to work.
                 words = new HashSet<string>(value, StringComparer.OrdinalIgnoreCase);
             }
+        }
+        
+        /// <summary>
+        /// This is an empty constructor for when the JSON needs to deserialize the GameData struct. This allows for proper transformation.
+        /// </summary>
+        public Puzzle()
+        {
+
         }
 
         /// <summary>
@@ -81,17 +110,17 @@ namespace WNPA02_SharedClassLibrary
         /// </returns>
         public static bool IsValidGuess(string guess, Puzzle puzzle)
         {
+            //Check to see if its null or whitespace
             if (string.IsNullOrWhiteSpace(guess))
-            {
                 return false;
-            }
-            else
-            {
-                //Returns the lowercase word to our case insensitive hashset with any whitespasce trimmed off.
-                return puzzle.Words.Contains(guess.Trim());
-            }
-            
-        }
 
+            //Check to see if the puzzle's word list is null. If it is, we can't check the guess against it, so return false.
+            if (puzzle.Words == null)
+                return false;
+
+            //Since its past the two checks, trim it of whitespace and get the true/false back from the Contains check.
+            guess = guess.Trim();
+            return puzzle.Words.Contains(guess);
+        }
     }
 }
