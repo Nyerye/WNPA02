@@ -1,5 +1,4 @@
-﻿
-/// <file>
+﻿/// <file>
 /// GameTimer.cs
 /// </file>
 /// <project>
@@ -26,6 +25,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace WNPA02_SharedClassLibrary
 {
@@ -36,41 +37,57 @@ namespace WNPA02_SharedClassLibrary
     {
         //Read the time from the App.config file and initialize the Stopwatch variable.
         private static readonly TimeSpan GameDuration = TimeSpan.FromMinutes(int.Parse(ConfigurationManager.AppSettings["gameTimer"]));
-        public static Stopwatch clientWatch;
+        private static TimeSpan timeRemaining;
+        public static DispatcherTimer clientTimer; //Reference for where I learned about these: https://learn.microsoft.com/en-us/dotnet/api/system.windows.threading.dispatchertimer?view=windowsdesktop-10.0
+
 
         /// <summary>
-        /// Starts a stopwatch when called on. 
+        /// Starts a timer when called on
         /// </summary>
-        public static void StartStopWatch()
+        public static void StartTimer()
         {
-            //Start the stopwatch.
-            clientWatch = Stopwatch.StartNew();
+            //Initialize the remaining time from the config value.
+            timeRemaining = GameDuration;
+            
+            //Create a new DispatcherTimer. Set intervals for firing to be every second. Subscribe to the event and start it.
+            clientTimer = new DispatcherTimer();
+            clientTimer.Interval = TimeSpan.FromSeconds(1);
+            clientTimer.Tick += ClientTimer_Tick;
+            clientTimer.Start();
         }
 
         /// <summary>
-        /// Gets the time remaining live by subtracting the stopwatchs time from the GameDuration value taken from the App.config file.
+        /// Reduces the timer by 1 every second (decreases time by one second live on client side)
         /// </summary>
-        /// <returns></returns>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private static void ClientTimer_Tick(object sender, EventArgs e)
+        {
+            //Subtract one second from the remaining time on each tick.
+            timeRemaining = timeRemaining.Subtract(TimeSpan.FromSeconds(1));
+
+            //If the timer has reached zero, stop it.
+            if (timeRemaining <= TimeSpan.Zero)
+            {
+                clientTimer.Stop();
+                timeRemaining = TimeSpan.Zero;
+            }
+        }
+
+        /// <summary>
+        /// Returns the remaining time in mm:ss format for UI updates.
+        /// </summary>
         public static string GetTimeRemaining()
         {
-            //If its null, return it to have the game duration value in the config file formatted to mm:hh.
-            if (clientWatch == null)
-                return GameDuration.ToString(@"mm\:ss");
-
-            //To find the time remaining, subtract the ceiling from the time elapsed in the stopwatch.
-            TimeSpan remaining = GameDuration - clientWatch.Elapsed;
-
-            //If user runs out of time, return 0.
-            if (remaining <= TimeSpan.Zero)
-                return "00:00";
-               
-            //Return the current time left.
-            return remaining.ToString(@"mm\:ss");
+            return timeRemaining.ToString(@"mm\:ss");
         }
 
+        /// <summary>
+        /// Checks to see if the timer has ran out.
+        /// </summary>
+        public static bool IsTimeUp()
+        {
+            return timeRemaining <= TimeSpan.Zero;
+        }
     }
-
-
-
-
 }
