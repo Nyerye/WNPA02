@@ -111,7 +111,7 @@ namespace WNPA02_SharedClassLibrary
             if (gameData.wordsLeft <= 0)
             {
                 gameData.isGameOver = true;
-                gameData.message = "Congratulations! You've guessed all the words!";
+                gameData.message = "Congratulations! You've guessed all the words! Do you want to play again?";
             }
             else
             {

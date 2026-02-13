@@ -133,12 +133,12 @@ namespace WNPA02_Client
             }
 
             //Update fields in the UI.
-            PuzzleStringTextBox.Text = gameData.puzzleString;
+            PuzzleStringTextBox.Text = gameData.puzzle.PuzzleString;
             SessionIDTextBox.Text = gameData.SessionID.ToString();
             TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
 
             //Update the words to find value. This will determine whether the user wins
-            totalWords = gameData.puzzleWordCount;
+            totalWords = gameData.puzzle.WordCount;
         }
 
         /// <summary>
@@ -166,7 +166,28 @@ namespace WNPA02_Client
                 return;
             }
 
+<<<<<<< Updated upstream
             
+=======
+            //Check to see if the user has won by checking the flag. If so, ask if they want to go again.
+            if (gameData.isGameOver)
+            {
+                string message = gameData.message;
+                string title = "Information";
+                MessageBoxButton buttons = MessageBoxButton.YesNo;
+                MessageBoxResult result = MessageBox.Show(message, title, buttons);
+                if (result == MessageBoxResult.Yes)
+                {
+                    NewGame_Click(sender, e);
+                }
+                else
+                {
+                    Application.Current.Shutdown();
+                    return;
+                }
+
+            }
+>>>>>>> Stashed changes
 
             //Load the command and append the trimmed guess to the GameData struct.
             gameData.command = "GUESS";
