@@ -166,10 +166,9 @@ namespace WNPA02_Client
                 return;
             }
 
-<<<<<<< Updated upstream
+
             
-=======
-            //Check to see if the user has won by checking the flag. If so, ask if they want to go again.
+   //Check to see if the user has won by checking the flag. If so, ask if they want to go again.
             if (gameData.isGameOver)
             {
                 string message = gameData.message;
@@ -187,7 +186,6 @@ namespace WNPA02_Client
                 }
 
             }
->>>>>>> Stashed changes
 
             //Load the command and append the trimmed guess to the GameData struct.
             gameData.command = "GUESS";
