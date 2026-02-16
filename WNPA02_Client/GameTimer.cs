@@ -57,6 +57,14 @@ namespace WNPA02_SharedClassLibrary
         }
 
         /// <summary>
+        /// Stops timer when called on.
+        /// </summary>
+        public static void StopTimer()
+        {
+            clientTimer.Stop();
+        }
+
+        /// <summary>
         /// Reduces the timer by 1 every second (decreases time by one second live on client side)
         /// </summary>
         /// <param name="sender"></param>

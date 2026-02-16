@@ -111,10 +111,10 @@ namespace WNPA02_Client
         {
             //Populate fields with specific info
             gameData.command = "START";
-
+            
+            
             //Start the timer. If already subscribed because we won a new game, just unsubscribe and re subscribe.
             GameTimer.StartTimer();
-            GameTimer.clientTimer.Tick -= UpdateTimerUI;
             GameTimer.clientTimer.Tick += UpdateTimerUI;
 
 
@@ -211,7 +211,12 @@ namespace WNPA02_Client
                 MessageBoxResult result = MessageBox.Show(message, title, buttons);
                 if (result == MessageBoxResult.Yes)
                 {
-                    //Close out and then re open and do new game
+                    //Clear out UI fields and start new game.
+                    PuzzleStringTextBox.Clear();
+                    WordsFoundTextBox.Clear();
+                    SessionIDTextBox.Clear();
+                    FoundWordsTextBox.Clear();
+                    GameTimer.StopTimer();
                     NewGame_Click(sender, e);
                 }
                 else
