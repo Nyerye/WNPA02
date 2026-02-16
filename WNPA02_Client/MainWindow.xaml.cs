@@ -112,8 +112,9 @@ namespace WNPA02_Client
             //Populate fields with specific info
             gameData.command = "START";
 
-            //Start the timer.
+            //Start the timer. If already subscribed because we won a new game, just unsubscribe and re subscribe.
             GameTimer.StartTimer();
+            GameTimer.clientTimer.Tick -= UpdateTimerUI;
             GameTimer.clientTimer.Tick += UpdateTimerUI;
 
 
@@ -133,12 +134,12 @@ namespace WNPA02_Client
             }
 
             //Update fields in the UI.
-            PuzzleStringTextBox.Text = gameData.puzzle.PuzzleString;
+            PuzzleStringTextBox.Text = gameData.puzzleString;
             SessionIDTextBox.Text = gameData.SessionID.ToString();
             TimeRemainingTextBox.Text = GameTimer.GetTimeRemaining();
 
             //Update the words to find value. This will determine whether the user wins
-            totalWords = gameData.puzzle.WordCount;
+            totalWords = gameData.puzzleWordCount;
         }
 
         /// <summary>
@@ -167,25 +168,9 @@ namespace WNPA02_Client
             }
 
 
-            
-   //Check to see if the user has won by checking the flag. If so, ask if they want to go again.
-            if (gameData.isGameOver)
-            {
-                string message = gameData.message;
-                string title = "Information";
-                MessageBoxButton buttons = MessageBoxButton.YesNo;
-                MessageBoxResult result = MessageBox.Show(message, title, buttons);
-                if (result == MessageBoxResult.Yes)
-                {
-                    NewGame_Click(sender, e);
-                }
-                else
-                {
-                    Application.Current.Shutdown();
-                    return;
-                }
 
-            }
+            //Check to see if the user has won by checking the flag. If so, ask if they want to go again.
+            
 
             //Load the command and append the trimmed guess to the GameData struct.
             gameData.command = "GUESS";
@@ -216,15 +201,27 @@ namespace WNPA02_Client
             wordsFound++;
             WordsFoundTextBox.Text = wordsFound.ToString();
             FoundWordsTextBox.AppendText(guess + ",");
-           
 
             //Check to see if the user has won.
             if (gameData.isGameOver)
             {
-                MessageBox.Show(gameData.message);
-                Application.Current.Shutdown();
-                return;
+                string message = gameData.message;
+                string title = "Information";
+                MessageBoxButton buttons = MessageBoxButton.YesNo;
+                MessageBoxResult result = MessageBox.Show(message, title, buttons);
+                if (result == MessageBoxResult.Yes)
+                {
+                    //Close out and then re open and do new game
+                    NewGame_Click(sender, e);
+                }
+                else
+                {
+                    Application.Current.Shutdown();
+                    return;
+                }
+
             }
+
 
             //Write a Cookie in case there are disconnects
             Cookie clientCookie = new Cookie(
